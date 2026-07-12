@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Activities · Momentum{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h2 class="fw-bold mb-0">Activities</h2>
+    <a href="{{ url_for('activity_add') }}" class="btn btn-primary-glow">
+        <i class="bi bi-plus-lg"></i> Log Activity
+    </a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form class="d-flex align-items-center gap-2 flex-wrap" method="get">
+            <label class="form-label mb-0 me-1 small text-muted">Filter by skill:</label>
+            <select name="skill_id" class="form-select form-select-sm" style="max-width: 220px;" onchange="this.form.submit()">
+                <option value="">All skills</option>
+                {% for skill in skills %}
+                <option value="{{ skill.id }}" {% if selected_skill_id == skill.id %}selected{% endif %}>{{ skill.name }}</option>
+                {% endfor %}
+            </select>
+            {% if selected_skill_id %}
+            <a href="{{ url_for('activities_list') }}" class="small">Clear filter</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if activities %}
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr class="text-muted small">
+                        <th>Date</th>
+                        <th>Skill</th>
+                        <th>Minutes</th>
+                        <th>Quality</th>
+                        <th>Completion</th>
+                        <th>Notes</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in activities %}
+                    <tr>
+                        <td>{{ a.date.strftime('%Y-%m-%d') }}</td>
+                        <td><span class="skill-dot" style="background:{{ a.skill.color }}"></span>{{ a.skill.name }}</td>
+                        <td>{{ a.minutes }} min</td>
+                        <td>
+                            <div class="progress" style="height:6px; width:60px;">
+                                <div class="progress-bar bg-warning" style="width:{{ (a.quality/10*100)|round }}%"></div>
+                            </div>
+                            <span class="small text-muted">{{ a.quality }}/10</span>
+                        </td>
+                        <td>
+                            <div class="progress" style="height:6px; width:60px;">
+                                <div class="progress-bar bg-success" style="width:{{ a.completion }}%"></div>
+                            </div>
+                            <span class="small text-muted">{{ a.completion }}%</span>
+                        </td>
+                        <td class="small text-muted">{{ a.notes or "—" }}</td>
+                        <td class="text-end">
+                            <a href="{{ url_for('activity_edit', activity_id=a.id) }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="post" action="{{ url_for('activity_delete', activity_id=a.id) }}" class="d-inline" onsubmit="return confirm('Delete this activity?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No activities found. <a href="{{ url_for('activity_add') }}">Log your first one</a>.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Skills · Momentum{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Skills</h2>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title fw-bold">Add a New Skill</h6>
+                <form method="post" action="{{ url_for('skill_add') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Skill name</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. Guitar, Spanish, Reading" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Color</label>
+                        <input type="color" name="color" class="form-control form-control-color" value="#0d6efd">
+                    </div>
+                    <button type="submit" class="btn btn-primary-glow w-100">
+                        <i class="bi bi-plus-lg"></i> Add Skill
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title fw-bold">Your Skills</h6>
+                {% if skills %}
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th>Skill</th>
+                                <th>Total Minutes</th>
+                                <th># Sessions</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for skill in skills %}
+                            <tr>
+                                <td><span class="skill-dot" style="background:{{ skill.color }}"></span>{{ skill.name }}</td>
+                                <td>{{ skill.total_minutes() }} min</td>
+                                <td>{{ skill.activities|length }}</td>
+                                <td class="text-end">
+                                    <form method="post" action="{{ url_for('skill_delete', skill_id=skill.id) }}" class="d-inline"
+                                          onsubmit="return confirm('Delete skill \'{{ skill.name }}\' and ALL its logged activities? This cannot be undone.');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No skills yet — add your first one.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

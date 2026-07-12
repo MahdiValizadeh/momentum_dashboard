@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Log Activity · Momentum{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <h2 class="fw-bold mb-4">Log Activity</h2>
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Skill</label>
+                        <select name="skill_id" class="form-select" required>
+                            <option value="" disabled {% if not form %}selected{% endif %}>Select a skill…</option>
+                            {% for skill in skills %}
+                            <option value="{{ skill.id }}" {% if form and form.get('skill_id')|string == skill.id|string %}selected{% endif %}>{{ skill.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="date" class="form-control" value="{{ form.get('date') if form else today }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Minutes</label>
+                        <input type="number" name="minutes" class="form-control" min="1" max="1440" value="{{ form.get('minutes') if form else 30 }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Quality (1–10)</label>
+                        <input type="range" class="form-range" min="1" max="10" name="quality" id="qualityRange"
+                               value="{{ form.get('quality') if form else 7 }}"
+                               oninput="document.getElementById('qualityVal').innerText=this.value">
+                        <div class="text-center small text-muted">Selected: <span id="qualityVal">{{ form.get('quality') if form else 7 }}</span>/10</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Completion (%)</label>
+                        <input type="range" class="form-range" min="0" max="100" step="5" name="completion" id="completionRange"
+                               value="{{ form.get('completion') if form else 100 }}"
+                               oninput="document.getElementById('completionVal').innerText=this.value">
+                        <div class="text-center small text-muted">Selected: <span id="completionVal">{{ form.get('completion') if form else 100 }}</span>%</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Notes (optional)</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="What did you work on?">{{ form.get('notes') if form else '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('activities_list') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary-glow">Save Activity</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
