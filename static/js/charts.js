@@ -19,21 +19,39 @@ function renderWeekChart(data) {
         type: "bar",
         data: {
             labels: data.week_labels,
-            datasets: [
-                {
-                    label: "Minutes",
-                    data: data.week_minutes,
-                    backgroundColor: "rgba(99, 102, 241, 0.75)",
-                    borderRadius: 6,
-                    maxBarThickness: 36,
+            datasets: data.week_skill_datasets.map(skill => ({
+                ...skill,
+                backgroundColor: context => {
+                    const area = context.chart.chartArea;
+                    const color = skill.backgroundColor;
+                    if (!area || !/^#[0-9a-f]{6}$/i.test(color)) return color;
+                    const gradient = context.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+                    gradient.addColorStop(0, color + 'b8');
+                    gradient.addColorStop(1, color);
+                    return gradient;
                 },
-            ],
+                borderRadius: 8,
+                borderSkipped: false,
+                borderColor: '#ffffff',
+                stack: 'minutes',
+                borderWidth: 1.5,
+                maxBarThickness: 34,
+                categoryPercentage: 0.65,
+            })),
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, padding: 14 } },
+                tooltip: { callbacks: {
+                    label: context => `${context.dataset.label}: ${context.parsed.y} min`,
+                    footer: items => `Total: ${items.reduce((total, item) => total + item.parsed.y, 0)} min`,
+                } },
+            },
+            interaction: { mode: 'index', intersect: false },
             scales: {
-                y: { beginAtZero: true, ticks: { precision: 0 } },
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: 'Minutes' } },
             },
         },
     });

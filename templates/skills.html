@@ -2,7 +2,13 @@
 {% block title %}Skills · Momentum{% endblock %}
 
 {% block content %}
-<h2 class="fw-bold mb-4">Skills</h2>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h2 class="fw-bold mb-0">Skills</h2>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('export_activities_csv') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-filetype-csv"></i> Export activities (CSV)</a>
+        <a href="{{ url_for('export_database') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-database-down"></i> Download DB backup</a>
+    </div>
+</div>
 
 <div class="row g-4">
     <div class="col-lg-5">
@@ -10,6 +16,7 @@
             <div class="card-body">
                 <h6 class="card-title fw-bold">Add a New Skill</h6>
                 <form method="post" action="{{ url_for('skill_add') }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <label class="form-label">Skill name</label>
                         <input type="text" name="name" class="form-control" placeholder="e.g. Guitar, Spanish, Reading" required>
@@ -38,6 +45,7 @@
                                 <th>Skill</th>
                                 <th>Total Minutes</th>
                                 <th># Sessions</th>
+                                <th>Weekly Target</th>
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
@@ -47,9 +55,18 @@
                                 <td><span class="skill-dot" style="background:{{ skill.color }}"></span>{{ skill.name }}</td>
                                 <td>{{ skill.total_minutes() }} min</td>
                                 <td>{{ skill.activities|length }}</td>
+                                <td>{% if skill.weekly_target_minutes %}{{ skill.weekly_target_minutes }} min{% else %}<span class="text-muted">—</span>{% endif %}</td>
                                 <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('skill_edit',skill_id=skill.id) }}"><i class="bi bi-pencil"></i> Edit</a>
+                                    <form method="post" action="{{ url_for('skill_archive', skill_id=skill.id) }}" class="d-inline">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Hide this skill but keep its history">
+                                            <i class="bi bi-archive"></i> Archive
+                                        </button>
+                                    </form>
                                     <form method="post" action="{{ url_for('skill_delete', skill_id=skill.id) }}" class="d-inline"
-                                          onsubmit="return confirm('Delete skill \'{{ skill.name }}\' and ALL its logged activities? This cannot be undone.');">
+                                          onsubmit="return confirm('Delete skill \'{{ skill.name }}\'? Only possible when it has no logged activities.');">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                             <i class="bi bi-trash"></i> Delete
                                         </button>
@@ -65,6 +82,33 @@
                 {% endif %}
             </div>
         </div>
+        {% if archived_skills %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title fw-bold">Archived Skills</h6>
+                <p class="small text-muted">Hidden from the dashboard, charts and daily lists. History is preserved.</p>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <tbody>
+                            {% for skill in archived_skills %}
+                            <tr>
+                                <td><span class="skill-dot" style="background:{{ skill.color }}"></span>{{ skill.name }}</td>
+                                <td>{{ skill.total_minutes() }} min</td>
+                                <td>{{ skill.activities|length }}</td>
+                                <td class="text-end">
+                                    <form method="post" action="{{ url_for('skill_unarchive', skill_id=skill.id) }}" class="d-inline">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-counterclockwise"></i> Restore</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

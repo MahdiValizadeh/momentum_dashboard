@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Edit skill · Momentum{% endblock %}
+{% block content %}
+<div class="form-page"><h1 class="detail-title mb-4">Edit skill</h1>
+<form method="post" class="card p-4"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+<div class="mb-3"><label class="form-label" for="name">Skill name</label><input class="form-control" id="name" name="name" maxlength="50" required value="{{ form.get('name',skill.name) }}"></div>
+<div class="mb-3"><label class="form-label" for="color">Color</label><input class="form-control form-control-color" type="color" id="color" name="color" required value="{{ form.get('color',skill.color) }}"></div>
+<div class="mb-4"><label class="form-label" for="weekly_target_minutes">Weekly target (minutes, 0 = no goal)</label><input class="form-control" type="number" min="0" max="10080" step="5" id="weekly_target_minutes" name="weekly_target_minutes" value="{{ form.get('weekly_target_minutes',skill.weekly_target_minutes) }}"></div>
+<p class="small text-muted">Your history and logged minutes are preserved. Daily titles matching the old skill name update too; custom titles stay unchanged.</p>
+<div class="d-flex justify-content-between"><a class="btn btn-outline-secondary" href="{{ url_for('skills_page') }}">Cancel</a><button class="btn btn-primary-glow">Save changes</button></div>
+</form></div>
+{% endblock %}

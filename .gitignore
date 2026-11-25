@@ -6,3 +6,6 @@ env/
 instance/*.db
 .DS_Store
 *.egg-info/
+
+instance/*.bak
+.pytest_cache/

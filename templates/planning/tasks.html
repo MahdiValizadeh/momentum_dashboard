@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% from 'planning/macros.html' import task_card %}
+{% block title %}Tasks · Momentum{% endblock %}
+{% block content %}
+<header class="page-heading"><div><span class="eyebrow"><i class="bi bi-stack"></i> The bigger picture</span><h1>Make room for progress<span class="brand-period">.</span></h1><p>Your long-term tasks, one manageable step at a time.</p></div><a class="btn btn-primary-glow" href="{{ url_for('planning.task_form') }}"><i class="bi bi-plus-lg"></i> New task</a></header>
+<div class="tasks-toolbar"><nav class="task-filters" aria-label="Task status">{% for s in ['Active','All'] + statuses|list + ['Archived'] %}<a class="filter-pill {% if s == selected %}selected{% endif %}" {% if s == selected %}aria-current="page"{% endif %} href="{{ url_for('planning.tasks',status=s,q=search) }}">{{ 'All Tasks' if s == 'All' else s }}</a>{% endfor %}</nav><form class="task-search" method="get"><input type="hidden" name="status" value="{{ selected }}"><label class="visually-hidden" for="task-search">Search tasks</label><input id="task-search" name="q" placeholder="Find a task…" value="{{ search }}"><button aria-label="Search tasks"><i class="bi bi-search"></i></button></form></div>
+<div class="section-heading small-heading"><h2>{{ 'All Tasks' if selected == 'All' else selected }} <span class="result-count">{{ tasks|length }}</span></h2></div>
+<div class="task-grid">{% for t in tasks %}{{ task_card(t) }}{% else %}<div class="empty-state"><i class="bi bi-inbox"></i><h3>Nothing here just yet</h3><p>{{ 'Try another search or status.' if search else 'Your tasks will appear here as you make progress.' }}</p><a href="{{ url_for('planning.task_form') }}">Create a task →</a></div>{% endfor %}</div>
+{% endblock %}

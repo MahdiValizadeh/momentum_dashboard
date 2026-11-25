@@ -1,0 +1,18 @@
+{% extends 'base.html' %}{% from 'planning/macros.html' import csrf, field %}
+{% block title %}{{ 'Edit daily task' if item else 'New daily task' }} · Momentum{% endblock %}
+{% block content %}
+{% set f = form if form is not none else {} %}
+<div class="form-page"><a class="back-link" href="{{ url_for('planning.daily_detail',item_id=item.id) if item else url_for('dashboard') }}"><i class="bi bi-arrow-left"></i> {{ 'Task details' if item else 'Your week' }}</a><header class="page-heading"><div><span class="eyebrow">One small step</span><h1>{{ 'Edit daily task' if item else 'New daily task' }}</h1></div></header>
+<form method="post" class="card p-4">{{ csrf() }}
+{{ field('Title','title',f.get('title',item.title if item else ''),required=true,extra='maxlength="200"') }}
+<div class="row"><div class="col-sm-6">{{ field('Day','date',f.get('date',item.date if item else today_date),'date',true) }}</div><div class="col-sm-6 mb-3"><label for="priority" class="form-label">Priority</label><select id="priority" name="priority" class="form-select">{% for p in priorities %}<option {% if p == f.get('priority',item.priority if item else 'Medium') %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></div></div>
+<div class="mb-3"><label for="description" class="form-label">Description</label><textarea id="description" name="description" class="form-control" rows="3" maxlength="20000" placeholder="A little context…">{{ f.get('description',item.description if item else '') }}</textarea></div>
+<div class="mb-3"><label for="notes" class="form-label">Notes</label><textarea id="notes" name="notes" class="form-control" rows="3" maxlength="20000" placeholder="Ideas, reminders, or what you learned…">{{ f.get('notes',item.notes if item else '') }}</textarea></div>
+<div class="mb-4"><label for="task_id" class="form-label">Related long-term task <span class="text-muted">· optional</span></label><select id="task_id" name="task_id" class="form-select"><option value="">Independent daily task</option>{% for t in task_choices %}<option value="{{ t.id }}" {% if t.id|string == f.get('task_id',item.task_id if item else '')|string %}selected{% endif %}>{{ t.title }}</option>{% endfor %}</select></div>
+<section class="activity-editor mb-4"><h2 class="h6">Activity & time</h2><p class="small text-muted">Record actual minutes here. Leave minutes empty for a task without logged time.</p>
+<div class="mb-3"><label class="form-label" for="skill_id">Skill</label><select class="form-select" name="skill_id" id="skill_id"><option value="">Choose a skill</option>{% for skill in skills %}<option value="{{ skill.id }}" {% if skill.id|string == f.get('skill_id',item.skill_id if item else '')|string %}selected{% endif %}>{{ skill.name }}</option>{% endfor %}</select></div>
+<div class="row"><div class="col-sm-4">{{ field('Minutes','minutes',f.get('minutes',item.activity.minutes if item and item.activity else ''),'number',false,extra='min="1" max="1440"') }}</div><div class="col-sm-4">{{ field('Quality (1–10)','quality',f.get('quality',item.activity.quality if item and item.activity else 7),'number',true,extra='min="1" max="10"') }}</div><div class="col-sm-4">{{ field('Completion (%)','completion',f.get('completion',item.activity.completion if item and item.activity else (100 if item and item.completed else 0)),'number',true,extra='min="0" max="100"') }}</div></div>
+</section>
+<div class="d-flex justify-content-between"><a class="btn btn-outline-secondary" href="{{ url_for('planning.daily_detail',item_id=item.id) if item else url_for('dashboard') }}">Cancel</a><button class="btn btn-primary-glow">Save task</button></div>
+</form></div>
+{% endblock %}

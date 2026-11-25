@@ -1,0 +1,68 @@
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title fw-bold">Quality &amp; Completion Trend — Last 14 Days</h6>
+                <canvas id="trendChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skills overview + Recent activity -->
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-title fw-bold">Skills</h6>
+                {% if skills %}
+                    <ul class="list-group list-group-flush">
+                        {% for skill in skills %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><span class="skill-dot" style="background:{{ skill.color }}"></span> {{ skill.name }}</span>
+                            <span class="badge text-bg-light">{{ skill.total_minutes() }} min</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">No skills yet.</p>
+                {% endif %}
+                <a href="{{ url_for('skills_page') }}" class="btn btn-sm btn-outline-secondary mt-3">Manage Skills</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="card-title fw-bold mb-0">Recent Activity</h6>
+                    <a href="{{ url_for('activities_list') }}" class="small">View all &rarr;</a>
+                </div>
+                {% if recent_activities %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th>Date</th><th>Skill</th><th>Minutes</th><th>Quality</th><th>Completion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in recent_activities %}
+                            <tr>
+                                <td>{{ a.date.strftime('%b %d') }}</td>
+                                <td><span class="skill-dot" style="background:{{ a.skill.color }}"></span>{{ a.skill.name }}</td>
+                                <td>{{ a.minutes }} min</td>
+                                <td>{{ a.quality }}/10</td>
+                                <td>{{ a.completion }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                    <p class="text-muted mb-0">No activity logged yet. <a href="{{ url_for('activity_add') }}">Log your first one</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

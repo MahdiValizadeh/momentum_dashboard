@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% from 'planning/macros.html' import csrf, task_card %}
+{% block title %}Your week · Momentum{% endblock %}
+{% block content %}
+<section class="weekly-dashboard">
+  <header class="page-heading">
+    <div><span class="eyebrow"><i class="bi bi-sun"></i> A little progress, every day</span><h1>Your week, in focus<span class="brand-period">.</span></h1><p>Small steps today. More room for what matters.</p></div>
+    <a class="btn btn-primary-glow" href="{{ url_for('planning.task_form') }}"><i class="bi bi-plus-lg"></i> New long-term task</a>
+  </header>
+  {% include 'planning/dashboard_stats.html' %}
+  <p class="small text-muted mb-4">Open a daily task to edit its activity, minutes and quality. Check it off when done.</p>
+  <div class="week-overview" aria-label="Weekly summary">
+    <div><span class="summary-icon"><i class="bi bi-check2-circle"></i></span><strong data-week-done>{{ completed_count }}</strong><span>completed</span></div>
+    <div><span class="summary-icon"><i class="bi bi-circle"></i></span><strong data-week-left>{{ remaining_count }}</strong><span>remaining</span></div>
+    <div><span class="summary-icon"><i class="bi bi-stack"></i></span><strong>{{ active_count }}</strong><span>active tasks</span></div>
+    <a href="{{ url_for('planning.tasks') }}" class="summary-deadlines"><i class="bi bi-flag"></i> {{ overdue_count }} overdue</a>
+  </div>
+  <div class="week-toolbar">
+    <div><span class="eyebrow">Weekly to-do</span><h2>{{ days[0].strftime('%b %d') }} – {{ days[-1].strftime('%b %d, %Y') }}</h2></div>
+    <nav class="week-navigation" aria-label="Choose week">
+      <a class="icon-button" aria-label="Previous Week" title="Previous Week" href="{{ url_for('dashboard',week=prev) }}"><i class="bi bi-chevron-left"></i></a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('dashboard') }}">Today</a>
+      <a class="icon-button" aria-label="Next Week" title="Next Week" href="{{ url_for('dashboard',week=nxt) }}"><i class="bi bi-chevron-right"></i></a>
+    </nav>
+  </div>
+  <div id="weekly-error" class="alert alert-danger d-none" role="alert" tabindex="-1"></div>
+  <div id="weekly-notice" class="alert alert-light d-none" role="status"></div>
+  <div class="week-strip" tabindex="0" aria-label="Seven-day week; scroll horizontally on smaller screens"><div class="weekly-board roomy-board">
+    {% for day in days %}
+    {% set done = by_day[day]|selectattr('completed')|list|length %}
+    <section class="day-card day-tone-{{ loop.index0 % 4 }} {% if day == today_date %}is-today{% endif %}" id="day-{{ day }}" data-day="{{ day }}" aria-labelledby="heading-{{ day }}">
+      <header class="day-header"><div><h3 id="heading-{{ day }}">{{ day.strftime('%A') }}</h3><span>{{ day.strftime('%b %d') }}</span></div><span class="day-number">{{ day.strftime('%d') }}</span></header>
+      <div class="day-counts"><span><b data-done>{{ done }}</b> done</span><span><b data-left>{{ by_day[day]|length-done }}</b> left</span>{% if day == today_date %}<span class="today-tag">Today</span>{% endif %}</div>
+      <div class="day-progress" aria-hidden="true"><span style="width:{{ done * 100 / (by_day[day]|length) if by_day[day] else 0 }}%"></span></div>
+      <div class="daily-list">{% for item in by_day[day] %}{% include 'planning/daily_row.html' %}{% endfor %}</div>
+      <p class="day-empty {% if by_day[day] %}d-none{% endif %}"><i class="bi bi-flower1"></i>A little breathing room.<br>Add your first task.</p>
+      <form class="quick-add" method="post" action="{{ url_for('planning.daily_quick_add') }}">
+        {{ csrf() }}<input type="hidden" name="date" value="{{ day }}">
+        <label class="visually-hidden" for="new-{{ day }}">New task for {{ day.strftime('%A') }} {{ day }}</label>
+        <input id="new-{{ day }}" name="title" type="text" placeholder="What’s the plan?" maxlength="200" required autocomplete="off">
+        <button type="submit"><i class="bi bi-plus-lg"></i> Add task</button>
+      </form>
+    </section>
+    {% endfor %}
+  </div>
+  </div>
+  <div class="section-heading"><div><span class="eyebrow">The bigger picture</span><h2>Keep moving forward</h2></div><a href="{{ url_for('planning.tasks') }}">All tasks <i class="bi bi-arrow-up-right"></i></a></div>
+  <div class="task-grid dashboard-tasks">{% for t in active_tasks %}{{ task_card(t) }}{% else %}<div class="empty-state"><i class="bi bi-check2-all"></i><h3>A fresh start</h3><p>Give your longer-term goals a place to grow.</p><a href="{{ url_for('planning.task_form') }}">Create your first task →</a></div>{% endfor %}</div>
+  <section class="dashboard-more mt-5">{% include 'planning/dashboard_more.html' %}</section>
+  <div class="visually-hidden" id="weekly-announcement" role="status" aria-live="polite"></div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static',filename='js/charts.js',v='soft-stacks-2') }}"></script><script src="{{ url_for('static',filename='js/weekly.js',v='done-first-3') }}"></script>{% endblock %}

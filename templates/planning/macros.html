@@ -1,0 +1,16 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+{% macro priority(value) %}<span class="priority priority-{{ value|lower }}"><i class="bi bi-flag"></i> {{ value }}</span>{% endmacro %}
+{% macro status(value) %}<span class="badge status-{{ value|lower|replace(' ', '-') }}">{{ value }}</span>{% endmacro %}
+{% macro field(label, name, value='', type='text', required=false, extra='') %}
+<div class="mb-3"><label class="form-label" for="{{ name }}">{{ label }}</label><input class="form-control" id="{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ value if value is not none else '' }}" {% if required %}required{% endif %} {{ extra|safe }}></div>
+{% endmacro %}
+{% macro task_card(t) %}
+<a class="task-card card text-decoration-none text-reset {% if t.overdue %}overdue{% endif %}" href="{{ url_for('planning.task_detail',task_id=t.id) }}">
+<div class="d-flex justify-content-between gap-2 mb-3">{{ priority(t.priority) }}{{ status(t.status) }}</div>
+<h3>{{ t.title }}</h3><p class="task-excerpt">{{ t.description|truncate(110) if t.description else 'One step at a time.' }}</p>
+{% if t.category %}<span class="task-skill"><i class="bi bi-stars"></i> {{ t.category.name }}</span>{% endif %}
+<div class="task-progress-label"><span>{{ t.subtasks|selectattr('completed')|list|length }}/{{ t.subtasks|length }} steps{% if not t.subtasks %} · manual{% endif %}</span><strong>{{ t.progress }}%</strong></div>
+<div class="progress" role="progressbar" aria-label="Progress for {{ t.title }}" aria-valuenow="{{ t.progress }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:{{ t.progress }}%"></div></div>
+<div class="task-card-footer"><span class="{% if t.overdue %}text-danger{% elif t.due_soon %}text-warning-emphasis{% endif %}"><i class="bi bi-calendar3"></i> {{ 'Overdue · ' if t.overdue else 'Due soon · ' if t.due_soon else '' }}{{ t.due_date or 'No deadline' }}</span><i class="bi bi-arrow-up-right"></i></div>
+</a>
+{% endmacro %}

@@ -1,0 +1,8 @@
+{
+  "integration_tests": {
+    "passed": 35,
+    "run": 35
+  },
+  "activity_smoke": "edit, checkbox sync, chart totals, soft delete and restore passed",
+  "browser_validation": "Not run"
+}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% from 'planning/macros.html' import csrf %}
+{% block title %}Delete task · Momentum{% endblock %}
+{% block content %}
+<div class="form-page"><div class="card p-4"><h1 class="detail-title">Delete “{{ task.title }}”?</h1>
+<p>This permanently deletes the task and all its data:</p>
+<ul><li>{{ task.comments|length }} comments</li><li>{{ task.subtasks|length }} checklist steps</li><li>{{ task.logs|length }} activity history entries</li><li>{{ task.daily_tasks|length }} linked daily tasks, including their notes and deleted items</li></ul>
+<p class="text-danger">This cannot be undone.</p>
+<form method="post">{{ csrf() }}<div class="d-flex flex-wrap gap-2"><a href="{{ url_for('planning.task_detail',task_id=task.id) }}" class="btn btn-outline-secondary">Cancel</a><button name="confirm" value="delete" class="btn btn-danger">Delete task and all its data</button></div></form>
+</div></div>
+{% endblock %}

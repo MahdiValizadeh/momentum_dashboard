@@ -1,0 +1,12 @@
+{% extends 'base.html' %}{% from 'planning/macros.html' import csrf, field %}
+{% block content %}
+{% set f=form if form is not none else {} %}
+<div class="form-page"><h1 class="detail-title mb-4">{{ 'Edit task' if task else 'New task' }}</h1><form method="post" class="card p-4">{{ csrf() }}
+{{ field('Title','title',f.get('title',task.title if task else ''),required=true,extra='maxlength="200"') }}
+<div class="mb-3"><label class="form-label" for="description">Description</label><textarea class="form-control" id="description" name="description" rows="5" maxlength="20000">{{ f.get('description',task.description if task else '') }}</textarea></div>
+<div class="row"><div class="col-md-6">{{ field('Start date','start_date',f.get('start_date',task.start_date if task else ''),'date') }}</div><div class="col-md-6">{{ field('Due date','due_date',f.get('due_date',task.due_date if task else ''),'date') }}</div></div>
+<div class="row">{% for name,label,options,default in [('priority','Priority',priorities,task.priority if task else 'Medium'),('status','Status',statuses,task.status if task else 'To Do')] %}<div class="col-md-6 mb-3"><label class="form-label" for="{{ name }}">{{ label }}</label><select class="form-select" name="{{ name }}" id="{{ name }}">{% for o in options %}<option {% if o == f.get(name,default) %}selected{% endif %}>{{ o }}</option>{% endfor %}</select></div>{% endfor %}</div>
+{{ field('Manual progress (%)','manual_progress',f.get('manual_progress',task.manual_progress if task else 0),'number',true,extra='min="0" max="100"') }}<p class="small text-muted">When a checklist exists, progress is calculated from its completed items. Completing the checklist does not change the task status.</p>
+<div class="mb-4"><label class="form-label" for="skill_id">Skill · optional</label><select class="form-select" name="skill_id" id="skill_id"><option value="">None</option>{% for skill in skills %}<option value="{{ skill.id }}" {% if skill.id|string == f.get('skill_id',task.skill_id if task else '')|string %}selected{% endif %}>{{ skill.name }}</option>{% endfor %}</select></div>
+<div class="d-flex justify-content-between"><a class="btn btn-outline-secondary" href="{{ url_for('planning.task_detail',task_id=task.id) if task else url_for('planning.tasks') }}">Cancel</a><button class="btn btn-primary-glow">Save task</button></div></form></div>
+{% endblock %}
